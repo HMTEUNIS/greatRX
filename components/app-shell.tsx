@@ -11,6 +11,7 @@ type NavItem = { href: string; label: string; shortcut?: string };
 
 const NAV: NavItem[] = [
   { href: "/tickets", label: "Tickets", shortcut: "g t" },
+  { href: "/tickets#ticket-intake", label: "Ticket Intake", shortcut: "g i" },
   { href: "/apps", label: "Apps", shortcut: "g a" },
   { href: "/webhooks", label: "Webhooks", shortcut: "g w" },
   { href: "/automations", label: "Automations", shortcut: "g r" },
@@ -71,6 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       if (chord === "g") {
         const k = e.key.toLowerCase();
         if (k === "t") router.push("/tickets");
+        else if (k === "i") router.push("/tickets#ticket-intake");
         else if (k === "a") router.push("/apps");
         else if (k === "w") router.push("/webhooks");
         else if (k === "r") router.push("/automations");
@@ -98,7 +100,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <nav aria-label="Primary" className="space-y-1">
             {NAV.map((item) => {
-              const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+              const normalizedHref = item.href.split("#")[0] ?? item.href;
+              const active =
+                pathname === normalizedHref || (normalizedHref !== "/admin" && pathname.startsWith(normalizedHref));
               return (
                 <Link
                   key={item.href}

@@ -8,7 +8,9 @@ const CreateWebhookSchema = z.object({
   events: z.array(z.enum(["created", "updated", "solved"])).min(1).max(3),
   target_url: z.string().url().max(2000),
   secret: z.string().min(1).max(500),
-  active: z.boolean().optional().default(true)
+  active: z.boolean().optional().default(true),
+  auth_type: z.enum(["none", "bearer", "custom_headers"]).optional().default("none"),
+  auth_config: z.record(z.unknown()).optional().default({})
 });
 
 export async function POST(req: Request) {
@@ -22,13 +24,16 @@ export async function POST(req: Request) {
   }
 
   const supabase = getSupabaseServerClient();
+  const authConfig = parsed.data.auth_config ?? {};
   const { error: insertErr } = await supabase.from("webhooks").insert({
     organization_id: admin.organizationId,
     name: parsed.data.name,
     events: parsed.data.events,
     target_url: parsed.data.target_url,
     secret: parsed.data.secret,
-    active: parsed.data.active
+    active: parsed.data.active,
+    auth_type: parsed.data.auth_type,
+    auth_config: authConfig
   });
 
   if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });

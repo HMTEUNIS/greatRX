@@ -9,12 +9,36 @@ type WebhookDeliverRequest = {
   max_attempts?: number;
 };
 
+type WebhookAuthType = "none" | "bearer" | "custom_headers";
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getAuthHeaders(authType: WebhookAuthType, authConfig: Record<string, unknown>): Record<string, string> {
+  if (authType === "bearer") {
+    const token = typeof authConfig.token === "string" ? authConfig.token.trim() : "";
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
+  }
+
+  if (authType === "custom_headers") {
+    const headers = authConfig.headers;
+    if (!headers || typeof headers !== "object" || Array.isArray(headers)) return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(headers)) {
+      if (!k.trim()) continue;
+      if (typeof v !== "string") continue;
+      out[k] = v;
+    }
+    return out;
+  }
+
+  return {};
 }
 
 serve(async (req) => {
@@ -28,7 +52,7 @@ serve(async (req) => {
 
     const { data: webhook, error: webhookErr } = await supabase
       .from("webhooks")
-      .select("id, organization_id, target_url, secret, active")
+      .select("id, organization_id, target_url, secret, active, auth_type, auth_config")
       .eq("id", reqJson.webhook_id)
       .maybeSingle();
 
@@ -47,6 +71,12 @@ serve(async (req) => {
       const timestamp = new Date().toISOString();
       const signedMessage = `${timestamp}.${reqJson.event_name}.${requestBody}`;
       const signature = await hmacSha256Hex(webhook.secret, signedMessage);
+      const authType = (webhook.auth_type ?? "none") as WebhookAuthType;
+      const authConfig =
+        webhook.auth_config && typeof webhook.auth_config === "object" && !Array.isArray(webhook.auth_config)
+          ? (webhook.auth_config as Record<string, unknown>)
+          : {};
+      const authHeaders = getAuthHeaders(authType, authConfig);
 
       let responseStatus: number | null = null;
       let responseBody: string | null = null;
@@ -59,7 +89,8 @@ serve(async (req) => {
             "Content-Type": "application/json",
             "X-ZenGarden-Event": reqJson.event_name,
             "X-ZenGarden-Timestamp": timestamp,
-            "X-ZenGarden-Signature": signature
+            "X-ZenGarden-Signature": signature,
+            ...authHeaders
           },
           body: requestBody
         });

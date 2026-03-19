@@ -1,6 +1,2 @@
 project_id = "zengarden"
-api_url = "http://localhost:54321"
-jwt_secret = "local-development-jwt-secret-change-me"
-anon_key = "local-development-anon-key-change-me"
-service_role_key = "local-development-service-role-key-change-me"
 

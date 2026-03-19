@@ -17,7 +17,13 @@ export function getSupabaseServerClient(): SupabaseClient {
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (toSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) => {
-        toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+        // In Server Components, Next.js can throw when mutating cookies.
+        // Middleware/route handlers are the write-capable contexts.
+        try {
+          toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+        } catch {
+          // no-op: read-only context for cookies
+        }
       }
     }
   });
