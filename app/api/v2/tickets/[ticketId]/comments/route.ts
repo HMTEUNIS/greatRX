@@ -32,17 +32,23 @@ export async function POST(req: Request, { params }: { params: { ticketId: strin
   if (tErr) return NextResponse.json({ error: tErr.message }, { status: 500 });
   if (!ticket) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  await supabase.from("ticket_comments").insert({
+  const { error: insertErr } = await supabase.from("ticket_comments").insert({
     organization_id: me.organization_id,
     ticket_id: params.ticketId,
     author_id: auth.user.id,
     body: parsed.data.body,
     is_internal: parsed.data.is_internal
   });
+  if (insertErr) {
+    return NextResponse.json({ error: insertErr.message }, { status: 403 });
+  }
 
   // If the ticket is new, Zendesk-like behavior typically opens it on first external reply.
   if (ticket.status === "new") {
-    await supabase.from("tickets").update({ status: "open" }).eq("id", params.ticketId);
+    const { error: updErr } = await supabase.from("tickets").update({ status: "open" }).eq("id", params.ticketId);
+    if (updErr) {
+      return NextResponse.json({ error: updErr.message }, { status: 403 });
+    }
   }
 
   const event: TicketEvent = ticket.status === "new" ? "updated" : "updated";
