@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { SessionBadge } from "@/components/auth/session-badge";
 
 type NavItem = { href: string; label: string; shortcut?: string };
 
@@ -117,6 +118,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mt-4 flex justify-between items-center">
             <ThemeToggle />
             <div className="text-xs text-muted-foreground">Shortcuts: g + key</div>
+          </div>
+
+          <div className="mt-2">
+            <SessionBadge />
           </div>
         </aside>
 

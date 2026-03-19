@@ -57,6 +57,19 @@ In Supabase:
 
 That is the most direct way to create all required tables, triggers, RLS policies, helper functions, and indexes.
 
+## 1b) Optional initial demo seed (SQL)
+
+If you want a SQL-only setup for roles/org mapping, you can run:
+
+- `supabase/seed_demo_users.sql`
+
+Important: **SQL does not create Supabase Auth users.**
+You must register the demo accounts via either:
+- ZenGarden `/signup` flow, or
+- Supabase Auth UI (create users manually)
+
+Once the Auth users exist, `supabase/seed_demo_users.sql` will map them into `public.users` with roles (`admin`, `agent`, `demo`).
+
 ## 2) Required environment variables
 
 Create `.env.local` in project root:
@@ -87,15 +100,22 @@ Then open `http://localhost:3000`.
 
 ## 4) First-use flow
 
-1. Sign up at `/signup` (or log in at `/login`)
-2. Open `/tickets` and click `Seed demo` (creates `admin`, `agent`, and `demo` users)
+1. Register the demo accounts via either:
+   - ZenGarden `/signup` flow, or
+   - Supabase Auth UI
+   - Note: if your Supabase project has email confirmation enabled, signups may not create an active session until confirmed (you may see redirects back to `/login` until you confirm, then log in again).
+   - Ensure these Auth user emails exist (the password can be anything you choose):
+     - `admin@zengarden.dummy`
+     - `agent@zengarden.dummy`
+     - `demo@zengarden.dummy`
+2. Open `/tickets` and click `Seed demo` to seed sample tickets/comments/automation rules.
 3. Open `/admin`
 4. Create/install at least one app (for `/apps/[appId]/settings` testing)
 5. Open `/apps` and then an app's Settings page
 
 Demo credentials (read-only):
 - Email: `demo@zengarden.dummy`
-- Password: `Demo1234!`
+- Password: `Demo1234!` (or whatever password you set when creating the demo user)
 
 ## 5) App settings behavior
 

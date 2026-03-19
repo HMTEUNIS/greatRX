@@ -21,6 +21,7 @@ export default function SignupPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
+  const [info, setInfo] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
   React.useEffect(() => {
@@ -31,6 +32,7 @@ export default function SignupPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     const parsed = SignupSchema.safeParse({ email, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid input");
@@ -40,10 +42,19 @@ export default function SignupPage() {
     setBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) throw signUpError;
-      // Supabase may require email confirmation depending on config.
-      router.replace(nextPath);
+
+      // If email confirmation is enabled, Supabase often returns `session: null`.
+      // In that case, we cannot rely on middleware auth and we should prompt the user.
+      if (data?.session) {
+        router.replace(nextPath);
+        return;
+      }
+
+      setInfo(
+        "Account created. If your Supabase project requires email confirmation, please check your inbox to confirm, then log in."
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed");
     } finally {
@@ -74,6 +85,7 @@ export default function SignupPage() {
           </div>
 
           {error ? <div className="rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700">{error}</div> : null}
+          {info ? <div className="rounded border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm text-yellow-900">{info}</div> : null}
 
           <Button type="submit" disabled={busy} className="w-full">
             {busy ? "Creating..." : "Create account"}

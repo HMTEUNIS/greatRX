@@ -52,13 +52,11 @@ serve(async (req) => {
       let authId = hit?.id as string | undefined;
 
       if (!authId) {
-        const { data: created, error: createErr } = await supabase.auth.admin.createUser({
-          email: u.email,
-          password: u.password,
-          email_confirm: true
-        });
-        if (createErr) throw createErr;
-        authId = created?.user?.id as string | undefined;
+        // Auth users must be created via Supabase UI or ZenGarden signup flow.
+        // This keeps setup predictable and avoids relying on SQL/edge auth admin helpers.
+        throw new Error(
+          `Missing auth user for ${u.email}. Create it via Supabase UI or ZenGarden /signup first.`
+        );
       }
 
       if (!authId) throw new Error(`Failed to resolve auth user for ${u.email}`);

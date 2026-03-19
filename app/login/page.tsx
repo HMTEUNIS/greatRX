@@ -60,7 +60,9 @@ export default function LoginPage() {
         <div className="mb-4 rounded border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm text-yellow-900">
           <div className="font-medium">Demo login (read-only)</div>
           <div className="mt-1 text-xs text-yellow-900/80">Email: demo@zengarden.dummy</div>
-          <div className="text-xs text-yellow-900/80">Password: Demo1234!</div>
+          <div className="text-xs text-yellow-900/80">
+            Password: Demo1234! (or whatever you set when creating the demo user)
+          </div>
         </div>
 
         <form className="space-y-4" onSubmit={onSubmit}>

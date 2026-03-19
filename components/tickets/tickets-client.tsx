@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { TicketPriority, TicketStatus } from "@/lib/tickets/types";
 import { isLiveDemoModeClient } from "@/lib/runtime/live-demo";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 export type Ticket = {
   id: string;
@@ -88,10 +89,16 @@ export function TicketsClient({ canSeed }: { canSeed: boolean }) {
               Live demo mode is ON (writes disabled).
             </p>
           ) : null}
+          {!liveDemoMode && !canSeed ? (
+            <p className="mt-1 text-xs text-muted-foreground">Read-only account: `Seed demo` is for admin/agent.</p>
+          ) : null}
         </div>
-        <Button onClick={() => void seedDemo()} disabled={loading || liveDemoMode || !canSeed}>
-          Seed demo
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => void seedDemo()} disabled={loading || liveDemoMode}>
+            Seed demo
+          </Button>
+          <LogoutButton className="h-10" />
+        </div>
       </div>
 
       <div className="mb-4 flex gap-2">
@@ -112,7 +119,18 @@ export function TicketsClient({ canSeed }: { canSeed: boolean }) {
 
       <Card className="p-4">
         {loading ? <div className="text-sm text-muted-foreground">Loading tickets...</div> : null}
-        {error ? <div className="rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700">{error}</div> : null}
+        {error ? (
+          <div className="rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 space-y-2">
+            <div>{error}</div>
+            {error.toLowerCase().includes("no organization") ? (
+              <div className="text-xs text-red-700/80">
+                Your Auth user exists, but it is not mapped to an organization in <code>public.users</code>.
+                Re-run <code>supabase/seed_demo_users.sql</code> (make sure the emails match), then refresh.
+                If you are trying to seed data, log in as <code>admin@zengarden.dummy</code> or <code>agent@zengarden.dummy</code>.
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {!loading && !error ? (
           tickets.length ? (
             <div className="space-y-2">
