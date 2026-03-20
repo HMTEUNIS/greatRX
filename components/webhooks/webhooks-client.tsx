@@ -49,7 +49,8 @@ function WebhooksClientInternal({ canWrite }: { canWrite: boolean }) {
   const [createName, setCreateName] = React.useState("My webhook");
   const [createEventsCsv, setCreateEventsCsv] = React.useState("created,updated,solved");
   const [createTargetUrl, setCreateTargetUrl] = React.useState("https://example.com/webhook");
-  const [createSecret, setCreateSecret] = React.useState("whsec_demo");
+  // Avoid `whsec_` prefix — GitHub secret scanning treats it like a Stripe webhook secret.
+  const [createSecret, setCreateSecret] = React.useState("zengarden_demo_webhook_secret");
 
   async function refresh() {
     setLoading(true);

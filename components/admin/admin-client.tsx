@@ -53,7 +53,8 @@ export function AdminClient({ canWrite }: { canWrite: boolean }) {
   const [whName, setWhName] = React.useState("Ticket webhook");
   const [whEvents, setWhEvents] = React.useState("created,updated,solved");
   const [whTargetUrl, setWhTargetUrl] = React.useState("https://example.com/webhook");
-  const [whSecret, setWhSecret] = React.useState("whsec_demo_secret");
+  // Avoid `whsec_` prefix — triggers false positives in GitHub secret scanning (Stripe pattern).
+  const [whSecret, setWhSecret] = React.useState("zengarden_demo_webhook_secret");
 
   // Automation form
   const [ruleName, setRuleName] = React.useState("Urgent -> pending");

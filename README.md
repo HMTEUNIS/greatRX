@@ -2,6 +2,8 @@
 
 Zendesk-style simulator built with Next.js + Supabase.
 
+**Continuing development / handing off to another dev or AI?** See **[`ZENGARDEN_HANDOFF.md`](./ZENGARDEN_HANDOFF.md)** for architecture notes, full migration list, env vars, and a one-line prompt you can paste into another LLM.
+
 ## 30-Second Quickstart
 
 1. In Supabase SQL Editor, run:
