@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pharmacy Lookup</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        padding: 12px;
+        background: #fafafa;
+        color: #111;
+      }
+      h1 {
+        font-size: 1rem;
+        margin: 0 0 12px;
+      }
+      dl {
+        margin: 0;
+        font-size: 0.875rem;
+      }
+      dt {
+        color: #666;
+        margin-top: 8px;
+      }
+      dd {
+        margin: 2px 0 0;
+        font-weight: 600;
+      }
+      .hint {
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pharmacy lookup</h1>
+    <p id="status">Loading ticket context…</p>
+    <dl id="ctx" hidden></dl>
+    <p class="hint">
+      Add tags <code>pharmacy_id:…</code> and <code>medication_id:…</code> on the ticket to populate IDs.
+    </p>
+    <script src="/apps/zaf-embed.js"></script>
+    <script>
+      (function () {
+        var status = document.getElementById("status");
+        var ctx = document.getElementById("ctx");
+        window.greatrxZaf.loadTicketContext().then(function (c) {
+          status.remove();
+          ctx.hidden = false;
+          function row(label, val) {
+            var dt = document.createElement("dt");
+            dt.textContent = label;
+            var dd = document.createElement("dd");
+            dd.textContent = val != null && val !== "" ? val : "—";
+            ctx.appendChild(dt);
+            ctx.appendChild(dd);
+          }
+          row("Ticket ID", c.ticketId);
+          row("Pharmacy ID", c.pharmacyId);
+          row("Medication ID", c.medicationId);
+          row("Organization ID", c.organizationId);
+        });
+      })();
+    </script>
+  </body>
+</html>

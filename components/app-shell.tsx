@@ -94,8 +94,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex">
         <aside className="hidden w-64 border-r p-4 md:block">
           <div className="mb-4">
-            <div className="text-lg font-semibold">ZenGarden</div>
-            <div className="text-xs text-muted-foreground">Zendesk simulator</div>
+            <div className="text-lg font-semibold">GreatRX</div>
+            <div className="text-xs text-muted-foreground">
+              Built on{" "}
+              <a
+                href="https://github.com/HMTEUNIS/zengarden"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                ZenGarden
+              </a>
+            </div>
           </div>
 
           <nav aria-label="Primary" className="space-y-1">

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Analysis</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        padding: 12px;
+        background: #fafafa;
+        color: #111;
+      }
+      h1 {
+        font-size: 1rem;
+        margin: 0 0 12px;
+      }
+      pre {
+        white-space: pre-wrap;
+        font-size: 0.8rem;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        padding: 10px;
+        margin: 0;
+      }
+      .muted {
+        color: #666;
+        font-size: 0.75rem;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AI / RAG analysis</h1>
+    <pre id="out">Loading context…</pre>
+    <p class="muted">
+      Replace this panel with your RAG worker; pass ticket ID and pharmacy/medication IDs as inputs.
+    </p>
+    <script src="/apps/zaf-embed.js"></script>
+    <script>
+      (function () {
+        var out = document.getElementById("out");
+        window.greatrxZaf.loadTicketContext().then(function (c) {
+          var payload = {
+            ticketId: c.ticketId,
+            pharmacyId: c.pharmacyId,
+            medicationId: c.medicationId,
+            organizationId: c.organizationId,
+            note: "POST these fields to your RAG API (not called from this placeholder)."
+          };
+          out.textContent = JSON.stringify(payload, null, 2);
+        });
+      })();
+    </script>
+  </body>
+</html>

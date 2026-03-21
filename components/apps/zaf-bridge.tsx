@@ -16,7 +16,11 @@ type ZafBridgeProps = {
     ticketId?: string | null;
     userId?: string | null;
     organizationId?: string | null;
+    pharmacyId?: string | null;
+    medicationId?: string | null;
   };
+  /** When set, only handle messages from this iframe (avoids duplicate parent listeners). */
+  iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 };
 
 function safeJson(v: unknown) {
@@ -28,10 +32,14 @@ function safeJson(v: unknown) {
   }
 }
 
-export function ZafBridge({ iframeOrigin, context }: ZafBridgeProps) {
+export function ZafBridge({ iframeOrigin, context, iframeRef }: ZafBridgeProps) {
   React.useEffect(() => {
     function onMessage(event: MessageEvent) {
       if (iframeOrigin && event.origin !== iframeOrigin) return;
+      if (iframeRef) {
+        const win = iframeRef.current?.contentWindow;
+        if (!win || event.source !== win) return;
+      }
 
       const data = event.data as any;
       if (!data || typeof data !== "object") return;
@@ -56,6 +64,10 @@ export function ZafBridge({ iframeOrigin, context }: ZafBridgeProps) {
             if (key === "ticketId") response.result = { value: context.ticketId ?? null };
             else if (key === "userId") response.result = { value: context.userId ?? null };
             else if (key === "organizationId") response.result = { value: context.organizationId ?? null };
+            else if (key === "pharmacyId" || key === "pharmacy_id")
+              response.result = { value: context.pharmacyId ?? null };
+            else if (key === "medicationId" || key === "medication_id")
+              response.result = { value: context.medicationId ?? null };
             else response.result = { value: null };
             break;
           }
@@ -79,7 +91,15 @@ export function ZafBridge({ iframeOrigin, context }: ZafBridgeProps) {
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [context.organizationId, context.ticketId, context.userId, iframeOrigin]);
+  }, [
+    context.medicationId,
+    context.organizationId,
+    context.pharmacyId,
+    context.ticketId,
+    context.userId,
+    iframeOrigin,
+    iframeRef
+  ]);
 
   return null;
 }

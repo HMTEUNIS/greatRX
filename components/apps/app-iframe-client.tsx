@@ -4,6 +4,7 @@ import * as React from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ZafBridge } from "@/components/apps/zaf-bridge";
+import { parseRxIdsFromTags } from "@/lib/zaf/ticket-context";
 
 type AppRow = {
   id: string;
@@ -20,12 +21,45 @@ export function AppIframeClient({ appId }: { appId: string }) {
   const [iframeOrigin, setIframeOrigin] = React.useState<string | null>(null);
 
   const [ticketId, setTicketId] = React.useState<string | null>(null);
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   React.useEffect(() => {
     const url = new URL(window.location.href);
     const t = url.searchParams.get("ticketId");
     if (t) setTicketId(t);
   }, []);
+
+  const [pharmacyId, setPharmacyId] = React.useState<string | null>(null);
+  const [medicationId, setMedicationId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!ticketId) {
+      setPharmacyId(null);
+      setMedicationId(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(`/api/v2/tickets/${ticketId}`);
+        const data = (await res.json()) as { ticket?: { tags?: string[] | null } };
+        if (!res.ok || cancelled) return;
+        const { pharmacyId: p, medicationId: m } = parseRxIdsFromTags(data.ticket?.tags ?? null);
+        if (!cancelled) {
+          setPharmacyId(p);
+          setMedicationId(m);
+        }
+      } catch {
+        if (!cancelled) {
+          setPharmacyId(null);
+          setMedicationId(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ticketId]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -96,9 +130,14 @@ export function AppIframeClient({ appId }: { appId: string }) {
         {app && !error ? (
           <div className="relative">
             {/* ZAF-like bridge listens for postMessage from the iframe and responds. */}
-            <ZafBridge iframeOrigin={iframeOrigin} context={{ ticketId, userId, organizationId }} />
+            <ZafBridge
+              iframeOrigin={iframeOrigin}
+              iframeRef={iframeRef}
+              context={{ ticketId, userId, organizationId, pharmacyId, medicationId }}
+            />
 
             <iframe
+              ref={iframeRef}
               title={app.name}
               src={app.iframe_url}
               className="h-[70vh] w-full rounded-md border"

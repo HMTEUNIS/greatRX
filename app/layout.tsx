@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppShell } from "@/components/app-shell";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 
 export const metadata: Metadata = {
-  title: "ZenGarden",
-  description: "Open-source Zendesk simulator/sandbox for developers."
+  title: "GreatRX",
+  description: "Pharmacy support platform demo built on ZenGarden."
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <AppShell>{children}</AppShell>
+          <AppSidebar />
         </ThemeProvider>
       </body>
     </html>
