@@ -130,6 +130,31 @@ A **Retool** app is intended to load inside GreatRX (and/or as a registered ZenG
 
 4. Open `http://localhost:3000`, sign up, then explore `/tickets` and `/admin`.
 
+## Edge Functions quick deploy
+
+If your Supabase Edge Functions are not live yet, you can connect + deploy everything with the scripts in `scripts/`.
+
+1. Connect this repo to your Supabase project and set required function secrets:
+
+   ```bash
+   ./scripts/connect-supabase-edge.sh \
+     --project-ref YOUR_PROJECT_REF \
+     --supabase-url "https://YOUR_PROJECT_REF.supabase.co" \
+     --service-role-key "YOUR_SERVICE_ROLE_KEY"
+   ```
+
+2. Deploy all functions in `supabase/functions` (skips `_shared`):
+
+   ```bash
+   ./scripts/deploy-supabase-functions.sh --project-ref YOUR_PROJECT_REF
+   ```
+
+Optional:
+
+- Use `--linked` on deploy script if you already ran `supabase link`.
+- Use `--dry-run` on connect script to preview commands without applying.
+- Optional secrets on connect script: `--seed-token`, `--worker-api-key`.
+
 ## Tech stack
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)

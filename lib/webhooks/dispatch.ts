@@ -13,8 +13,38 @@ export async function dispatchTicketSideEffects(params: {
   ticketId: string;
   event: TicketEvent;
 }) {
+  await dispatchTicketEnrichment(params);
   await dispatchTicketEventToWebhooks(params);
   await dispatchTicketEventToAutomation(params);
+}
+
+async function dispatchTicketEnrichment(params: { organizationId: string; ticketId: string; event: TicketEvent }) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) {
+    console.warn(`${LOG_PREFIX}: missing NEXT_PUBLIC_SUPABASE_URL; skipping ticket enrichment`);
+    return;
+  }
+  // Allow disabling enrichment without code changes.
+  if (process.env.NEXT_PUBLIC_ENABLE_TICKET_ENRICHMENT === "false") return;
+
+  const fnUrl = `${supabaseUrl}/functions/v1/ticket-enrich`;
+  try {
+    const response = await fetch(fnUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        organization_id: params.organizationId,
+        ticket_id: params.ticketId,
+        event_name: params.event
+      })
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error(`${LOG_PREFIX}: ticket-enrich HTTP ${response.status}: ${text}`);
+    }
+  } catch (e) {
+    console.error(`${LOG_PREFIX}: ticket-enrich fetch failed`, e);
+  }
 }
 
 export async function dispatchTicketEventToWebhooks(params: {
