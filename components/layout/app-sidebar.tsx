@@ -6,30 +6,21 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { parseRxIdsFromTags } from "@/lib/zaf/ticket-context";
 import { ZafBridge } from "@/components/apps/zaf-bridge";
 
-interface App {
-  id: string;
-  name: string;
-  url: string;
-}
-
-const availableApps: App[] = [
-  { id: "pharmacy", name: "Pharmacy Lookup", url: "/apps/pharmacy-lookup.html" },
-  { id: "inventory", name: "Inventory", url: "/apps/inventory-check.html" },
-  { id: "rag", name: "AI Analysis", url: "/apps/rag-interpretation.html" },
-  { id: "shipments", name: "Shipments", url: "/apps/shipment-tracker.html" }
-];
+const ISSUE_TRACKER_URL = "https://hollyteunis.retool.com/embedded/public/05c972f2-645d-4465-8256-67be3acdc3ba";
 
 const TICKET_PATH = /^\/tickets\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [activeApp, setActiveApp] = React.useState<string | null>(null);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
-  const [iframeOrigin, setIframeOrigin] = React.useState<string | null>(null);
-  React.useEffect(() => {
-    setIframeOrigin(window.location.origin);
+  const iframeOrigin = React.useMemo(() => {
+    try {
+      return new URL(ISSUE_TRACKER_URL).origin;
+    } catch {
+      return null;
+    }
   }, []);
 
   const ticketId = React.useMemo(() => {
@@ -108,46 +99,29 @@ export function AppSidebar() {
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="fixed right-0 top-1/2 z-50 -translate-y-1/2 rounded-l-md bg-primary px-2 py-3 text-primary-foreground shadow-md transition-all duration-200 hover:bg-primary/90"
-        title={isCollapsed ? "Open Apps" : "Close Apps"}
+        title={isCollapsed ? "Open known issue tracking" : "Close known issue tracking"}
       >
-        {isCollapsed ? "◀ Apps" : "Apps ▶"}
+        {isCollapsed ? "◀ Known issue tracking" : "Known issue tracking ▶"}
       </button>
 
       <div
-        className={`fixed right-0 top-0 z-40 h-full w-96 border-l bg-background shadow-xl transition-transform duration-200 ${
+        className={`fixed right-0 top-1/2 z-40 h-[52vh] min-w-[50vw] w-[70vw] max-w-[75vw] -translate-y-1/2 border-l bg-background shadow-xl transition-transform duration-200 ${
           isCollapsed ? "translate-x-full" : "translate-x-0"
         }`}
       >
         <div className="flex h-full flex-col">
-          <div className="flex overflow-x-auto border-b">
-            {availableApps.map((app) => (
-              <button
-                key={app.id}
-                type="button"
-                onClick={() => setActiveApp(app.id)}
-                className={`flex-1 whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors ${
-                  activeApp === app.id
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {app.name}
-              </button>
-            ))}
+          <div className="border-b px-4 py-3 text-sm font-medium">
+            Known issue tracking
           </div>
 
           <div className="min-h-0 flex-1 overflow-auto p-4">
-            {activeApp ? (
-              <iframe
-                ref={iframeRef}
-                src={availableApps.find((a) => a.id === activeApp)?.url}
-                className="h-full min-h-[420px] w-full border-0"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                title={activeApp}
-              />
-            ) : (
-              <div className="mt-8 text-center text-sm text-muted-foreground">Select an app from above</div>
-            )}
+            <iframe
+              ref={iframeRef}
+              src={ISSUE_TRACKER_URL}
+              className="h-full min-h-[420px] w-full border-0"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+              title="Known issue tracking"
+            />
           </div>
         </div>
       </div>

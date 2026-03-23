@@ -53,6 +53,7 @@ See **README.md** for full detail, demo emails (`@zengarden.dummy`), and trouble
 
 - **`public.users.role`**: `admin` | `agent` | `demo`  
 - **`demo`**: read-only at **RLS** (cannot create tickets, etc.); can still browse admin-ish UIs where allowed.  
+- **`agent` (this fork)**: App Router allows **`/admin`**, **`/webhooks`**, **`/automations`** with the same read-only UI gates as **`demo`** (writes still require **`admin`**). Upstream ZenGarden may still redirect **`agent`** from those paths—check `app/*/page.tsx` when merging.  
 - **`admin`**: writes to webhooks, apps, app_settings, automation rules, etc. (per policies).  
 - **Middleware** (`middleware.ts`): protects `/tickets`, `/admin`, `/apps`, `/webhooks`, `/automations`, `/api/*` — redirects unauthenticated users to `/login`.  
 - **`lib/supabase/server.ts`**: `createServerClient` cookie adapter **must not throw** on cookie `set` in read-only contexts — writes are wrapped in `try/catch` (Next.js restriction).  

@@ -36,13 +36,32 @@ export async function GET(_: Request, { params }: { params: { ticketId: string }
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!ticket) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { data: comments } = await supabase
+  const { data: comments, error: commentsErr } = await supabase
     .from("ticket_comments")
     .select("id,author_id,body,is_internal,created_at")
     .eq("ticket_id", params.ticketId)
+    .eq("organization_id", me.organization_id)
     .order("created_at", { ascending: true });
 
-  return NextResponse.json({ ticket, comments: comments ?? [] }, { status: 200 });
+  if (commentsErr) return NextResponse.json({ error: commentsErr.message }, { status: 500 });
+
+  const rows = comments ?? [];
+  const authorIds = [...new Set(rows.map((c) => c.author_id))];
+  let authorRoleById: Record<string, string> = {};
+  if (authorIds.length > 0) {
+    const { data: authors, error: authorsErr } = await supabase.from("users").select("id, role").in("id", authorIds);
+    if (authorsErr) return NextResponse.json({ error: authorsErr.message }, { status: 500 });
+    for (const a of authors ?? []) {
+      authorRoleById[a.id as string] = String(a.role);
+    }
+  }
+
+  const commentsWithAuthors = rows.map((c) => ({
+    ...c,
+    author_role: authorRoleById[c.author_id] ?? null
+  }));
+
+  return NextResponse.json({ ticket, comments: commentsWithAuthors }, { status: 200 });
 }
 
 export async function PATCH(req: Request, { params }: { params: { ticketId: string } }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -360,15 +361,19 @@ export function TicketsClient({ canSeed }: { canSeed: boolean }) {
           tickets.length ? (
             <div className="space-y-2">
               {tickets.map((t) => (
-                <div key={t.id} className="flex items-center justify-between gap-3 rounded border p-3">
+                <Link
+                  key={t.id}
+                  href={`/tickets/${t.id}`}
+                  className="flex items-center justify-between gap-3 rounded-md border border-border p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
                   <div className="min-w-0">
                     <div className="truncate font-medium">{t.subject}</div>
-                    <div className="text-xs text-muted-foreground">{t.status} · {t.priority}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.status} · {t.priority}
+                    </div>
                   </div>
-                  <Button variant="secondary" onClick={() => router.push(`/tickets/${t.id}`)}>
-                    View
-                  </Button>
-                </div>
+                  <span className="shrink-0 text-xs text-muted-foreground">Open →</span>
+                </Link>
               ))}
             </div>
           ) : (

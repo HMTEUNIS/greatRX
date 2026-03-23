@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { SessionBadge } from "@/components/auth/session-badge";
+import { EmbedTicketNavigationListener } from "@/components/layout/embed-ticket-navigation-listener";
 
 type NavItem = { href: string; label: string; shortcut?: string };
 
@@ -91,6 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <EmbedTicketNavigationListener />
       <div className="flex">
         <aside className="hidden w-64 border-r p-4 md:block">
           <div className="mb-4">

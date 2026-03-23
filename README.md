@@ -140,6 +140,8 @@ A **Retool** app is intended to load inside GreatRX (and/or as a registered ZenG
 
 Inherited from ZenGarden: ticketing flows, webhooks + delivery, automation rules, app iframe sandbox + settings, Supabase Auth + RLS roles (`admin` / `agent` / `demo`).
 
+**Roles (UI):** Only **`admin`** can use the **+** presets on `/apps` (Retool, Sheets, embed URL) and can edit webhooks, automations, and admin tables. **`agent`** and **`demo`** can open **`/admin`**, **`/webhooks`**, and **`/automations`** to review (read-only in the UI). If you were redirected to **`/tickets`** from those routes, you were likely signed in as a user whose `public.users.role` is not one of those three (or not logged in). The home page **`/`** always redirects to **`/tickets`** by design.
+
 ## Optional demo seed (SQL)
 
 - `supabase/seed_demo_users.sql` — maps Auth users into `public.users` with roles.

@@ -55,6 +55,7 @@ export function AppsAddPresets({ canAddApps, onAdded }: { canAddApps: boolean; o
   const [sheetsName, setSheetsName] = React.useState("Google Sheet");
   const [sheetsInput, setSheetsInput] = React.useState("");
 
+
   function openPreset(p: Preset) {
     queueMicrotask(() => {
       setPreset(p);
@@ -168,8 +169,6 @@ export function AppsAddPresets({ canAddApps, onAdded }: { canAddApps: boolean; o
       manifest: { preset: "google_sheets", spreadsheet_id: id }
     });
   }
-
-  if (!canAddApps) return null;
 
   return (
     <>
@@ -335,6 +334,7 @@ export function AppsAddPresets({ canAddApps, onAdded }: { canAddApps: boolean; o
                 </div>
               </form>
             ) : null}
+
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
